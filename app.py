@@ -13,25 +13,21 @@ DATA_FILE = "customers.json"
 TELEGRAM_TOKEN = "8003548627:AAHpSyXnVK-Nyz-oCzPUddcXQ9PQQPSAeQo"
 OWNER_CHAT_ID = 7777263915  # حسابك الشخصي
 
-
 def load_customers():
     if not os.path.exists(DATA_FILE):
         return []
     with open(DATA_FILE, "r") as f:
         return json.load(f)
 
-
 def save_customers(customers):
     with open(DATA_FILE, "w") as f:
         json.dump(customers, f, indent=2)
-
 
 @app.route("/")
 def index():
     customers = load_customers()
     now = datetime.now(pytz.timezone("Asia/Beirut")).strftime("%Y-%m-%d %H:%M:%S")
     return render_template("index.html", customers=customers, now=now)
-
 
 @app.route("/add", methods=["POST"])
 def add_customer():
@@ -47,7 +43,6 @@ def add_customer():
     save_customers(customers)
     return redirect("/")
 
-
 @app.route("/toggle/<int:index>")
 def toggle_paid(index):
     customers = load_customers()
@@ -55,14 +50,12 @@ def toggle_paid(index):
     save_customers(customers)
     return redirect("/")
 
-
 @app.route("/delete/<int:index>")
 def delete_customer(index):
     customers = load_customers()
     customers.pop(index)
     save_customers(customers)
     return redirect("/")
-
 
 def send_daily_reminder():
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
@@ -81,11 +74,9 @@ def send_daily_reminder():
                     print("Error sending Telegram message:", e)
         time.sleep(60)
 
-
 # بدء مهمة التذكير في الخلفية
 threading.Thread(target=send_daily_reminder, daemon=True).start()
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-
