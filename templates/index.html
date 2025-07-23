@@ -1,239 +1,231 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>نظام إدارة المشتركين</title>
+<title>Customer Management System</title>
 <style>
   body {
     background-color: #121212;
     color: #eee;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: Arial, sans-serif;
+    margin: 0;
     padding: 20px;
-    min-height: 100vh;
   }
   h1 {
     color: #00d8ff;
-    margin-bottom: 20px;
     text-align: center;
+    margin-bottom: 20px;
   }
   .container {
     max-width: 600px;
-    margin: 0 auto;
-    background: #1e1e1e;
+    margin: auto;
+    background-color: #1e1e1e;
     border-radius: 10px;
     padding: 20px;
     box-shadow: 0 0 15px #00d8ff44;
   }
   label {
     display: block;
-    margin-top: 15px;
-    font-weight: bold;
+    margin-bottom: 5px;
   }
   input[type="text"], input[type="tel"] {
     width: 100%;
-    padding: 10px;
-    margin-top: 6px;
+    padding: 8px;
+    margin-bottom: 15px;
     border-radius: 6px;
     border: none;
-    outline: none;
-    font-size: 1rem;
   }
   button {
-    margin-top: 20px;
     background-color: #00aaff;
-    color: #121212;
-    padding: 12px 20px;
-    font-weight: bold;
     border: none;
-    border-radius: 8px;
+    color: #121212;
+    padding: 10px 20px;
+    border-radius: 6px;
     cursor: pointer;
+    font-weight: bold;
     width: 100%;
-    font-size: 1.1rem;
   }
   button:hover {
     background-color: #008fcc;
   }
   table {
     width: 100%;
-    margin-top: 25px;
     border-collapse: collapse;
+    margin-top: 25px;
   }
   th, td {
     padding: 10px;
     border-bottom: 1px solid #333;
-    text-align: center;
+    text-align: left;
   }
   th {
     background-color: #00aaff;
     color: #121212;
   }
   .paid-btn {
-    background-color: #00d800;
-    color: #121212;
+    background-color: #28a745;
+    color: white;
     border: none;
     padding: 6px 12px;
     border-radius: 6px;
     cursor: pointer;
   }
   .paid-btn:hover {
-    background-color: #00a400;
+    background-color: #218838;
+  }
+  .delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .delete-btn:hover {
+    background-color: #c82333;
   }
   .message {
-    margin-top: 15px;
-    font-weight: bold;
-    text-align: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 6px;
   }
   .error {
-    color: #ff4c4c;
+    background-color: #ff4c4c;
   }
   .success {
-    color: #4cff4c;
+    background-color: #28a745;
   }
 </style>
 </head>
 <body>
+  <h1>Customer Management System</h1>
+  <div class="container">
+    <div id="message" class="message" style="display:none;"></div>
+    <form id="addForm">
+      <label for="name">Name:</label>
+      <input type="text" id="name" required />
+      <label for="phone">Phone:</label>
+      <input type="tel" id="phone" required />
+      <button type="submit">Add Customer</button>
+    </form>
 
-<h1>نظام إدارة المشتركين</h1>
+    <table id="customersTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Join Date</th>
+          <th>Paid</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-<div class="container">
-  <label for="name">اسم المشترك:</label>
-  <input type="text" id="name" placeholder="أدخل اسم المشترك" />
+  <script>
+    const messageEl = document.getElementById("message");
+    const customersTable = document.getElementById("customersTable");
+    const customersTbody = customersTable.querySelector("tbody");
 
-  <label for="phone">رقم الهاتف:</label>
-  <input type="tel" id="phone" placeholder="أدخل رقم الهاتف" />
-
-  <button id="addBtn">إضافة مشترك</button>
-  
-  <div class="message" id="message"></div>
-
-  <button id="showBtn">عرض قائمة المشتركين</button>
-
-  <table id="customersTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>الاسم</th>
-        <th>رقم الهاتف</th>
-        <th>تاريخ الاشتراك</th>
-        <th>حالة الدفع</th>
-        <th>تعديل</th>
-      </tr>
-    </thead>
-    <tbody id="customersBody"></tbody>
-  </table>
-</div>
-
-<script>
-  const addBtn = document.getElementById("addBtn");
-  const showBtn = document.getElementById("showBtn");
-  const message = document.getElementById("message");
-  const customersTable = document.getElementById("customersTable");
-  const customersBody = document.getElementById("customersBody");
-
-  // اضافة مشترك جديد
-  addBtn.onclick = async () => {
-    message.textContent = "";
-    const name = document.getElementById("name").value.trim();
-    const phone = document.getElementById("phone").value.trim();
-
-    if (!name || !phone) {
-      message.textContent = "الرجاء تعبئة الاسم ورقم الهاتف!";
-      message.className = "message error";
-      return;
+    function showMessage(text, isError = false) {
+      messageEl.style.display = "block";
+      messageEl.textContent = text;
+      messageEl.className = "message " + (isError ? "error" : "success");
+      setTimeout(() => {
+        messageEl.style.display = "none";
+      }, 3000);
     }
 
-    const response = await fetch("/api/customers", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, phone })
-    });
-
-    const result = await response.json();
-    if (result.success) {
-      message.textContent = result.message;
-      message.className = "message success";
-      document.getElementById("name").value = "";
-      document.getElementById("phone").value = "";
-      loadCustomers();
-    } else {
-      message.textContent = result.message || "حدث خطأ";
-      message.className = "message error";
-    }
-  };
-
-  // عرض قائمة المشتركين
-  showBtn.onclick = () => {
-    if (customersTable.style.display === "none") {
-      loadCustomers();
+    function renderCustomers(customers) {
+      if (customers.length === 0) {
+        customersTable.style.display = "none";
+        return;
+      }
       customersTable.style.display = "table";
-      showBtn.textContent = "إخفاء القائمة";
-    } else {
-      customersTable.style.display = "none";
-      showBtn.textContent = "عرض قائمة المشتركين";
-      customersBody.innerHTML = "";
-      message.textContent = "";
-    }
-  };
-
-  // تحميل بيانات المشتركين وعرضها في الجدول
-  async function loadCustomers() {
-    customersBody.innerHTML = "";
-    const response = await fetch("/api/customers");
-    const customers = await response.json();
-
-    if (customers.length === 0) {
-      message.textContent = "لا يوجد مشتركين.";
-      message.className = "message error";
-      return;
+      customersTbody.innerHTML = "";
+      customers.forEach(c => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${c.name}</td>
+          <td>${c.phone}</td>
+          <td>${c.join_date}</td>
+          <td>${c.paid ? "✅" : "❌"}</td>
+          <td>
+            ${c.paid ? "" : `<button class="paid-btn" onclick="markPaid('${c.phone}')">Mark Paid</button>`}
+            <button class="delete-btn" onclick="deleteCustomer('${c.phone}')">Delete</button>
+          </td>
+        `;
+        customersTbody.appendChild(tr);
+      });
     }
 
-    message.textContent = "";
-    customers.forEach(c => {
-      const tr = document.createElement("tr");
-
-      tr.innerHTML = `
-        <td>${c.name}</td>
-        <td>${c.phone}</td>
-        <td>${c.join_date}</td>
-        <td>${c.paid ? "✔️ مدفوع" : "❌ لم يتم الدفع"}</td>
-        <td>
-          ${c.paid ? "" : `<button class="paid-btn" onclick="markPaid('${c.phone}')">تأكيد الدفع</button>`}
-          <button class="paid-btn" style="background:#ff4444; margin-left:5px;" onclick="deleteCustomer('${c.phone}')">حذف</button>
-        </td>
-      `;
-      customersBody.appendChild(tr);
-    });
-  }
-
-  // تأكيد الدفع
-  async function markPaid(phone) {
-    const response = await fetch(`/api/customers/${phone}/paid`, { method: "POST" });
-    const result = await response.json();
-    if (result.success) {
-      message.textContent = result.message;
-      message.className = "message success";
-      loadCustomers();
-    } else {
-      message.textContent = result.message || "حدث خطأ";
-      message.className = "message error";
+    async function fetchCustomers() {
+      const res = await fetch("/");
+      const htmlText = await res.text();
+      // Extract customers data from HTML by parsing window.customers variable or use a separate API if you add one.
+      // Here, for simplicity, we reload the page after each change, so no need for this function.
     }
-  }
 
-  // حذف مشترك
-  async function deleteCustomer(phone) {
-    if (!confirm("هل أنت متأكد من حذف هذا المشترك؟")) return;
-    const response = await fetch(`/api/customers/${phone}`, { method: "DELETE" });
-    const result = await response.json();
-    if (result.success) {
-      message.textContent = result.message;
-      message.className = "message success";
-      loadCustomers();
-    } else {
-      message.textContent = result.message || "حدث خطأ";
-      message.className = "message error";
+    async function addCustomer(event) {
+      event.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const phone = document.getElementById("phone").value.trim();
+      if (!name || !phone) {
+        showMessage("Please enter both name and phone.", true);
+        return;
+      }
+      const res = await fetch("/add_customer", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({name, phone})
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMessage("Customer added successfully.");
+        window.location.reload();
+      } else {
+        showMessage(data.message || "Error adding customer.", true);
+      }
     }
-  }
-</script>
 
+    async function deleteCustomer(phone) {
+      if (!confirm("Are you sure you want to delete this customer?")) return;
+      const res = await fetch("/delete_customer", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({phone})
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMessage("Customer deleted.");
+        window.location.reload();
+      } else {
+        showMessage(data.message || "Error deleting customer.", true);
+      }
+    }
+
+    async function markPaid(phone) {
+      const res = await fetch("/mark_paid", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({phone})
+      });
+      const data = await res.json();
+      if (data.success) {
+        showMessage("Payment marked as paid.");
+        window.location.reload();
+      } else {
+        showMessage(data.message || "Error updating payment status.", true);
+      }
+    }
+
+    document.getElementById("addForm").addEventListener("submit", addCustomer);
+
+    // Render initial customers list passed from server-side
+    const initialCustomers = {{ customers|tojson }};
+    renderCustomers(initialCustomers);
+  </script>
 </body>
 </html>
