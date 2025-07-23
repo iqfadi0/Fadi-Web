@@ -1,17 +1,33 @@
-from flask import Flask, render_template, request, jsonify
-from flask_basicauth import BasicAuth
-import json
+from flask import Flask, render_template, request, jsonify, Response
 import os
+import json
 import datetime
 
 app = Flask(__name__)
 
-app.config['BASIC_AUTH_USERNAME'] = os.getenv('BASIC_AUTH_USERNAME', 'admin')
-app.config['BASIC_AUTH_PASSWORD'] = os.getenv('BASIC_AUTH_PASSWORD', 'password')
-app.config['BASIC_AUTH_FORCE'] = True
+# إعدادات تسجيل الدخول (تُقرأ من Render أو يتم تحديدها مباشرة)
+USERNAME = os.getenv("BASIC_AUTH_USERNAME", "admin")
+PASSWORD = os.getenv("BASIC_AUTH_PASSWORD", "password")
 
-basic_auth = BasicAuth(app)
+# التحقق من تسجيل الدخول
+def check_auth(username, password):
+    return username == USERNAME and password == PASSWORD
 
+# رسالة طلب تسجيل الدخول
+def authenticate():
+    return Response(
+        "يجب تسجيل الدخول للوصول للموقع", 401,
+        {"WWW-Authenticate": 'Basic realm="Login Required"'}
+    )
+
+# تطبيق الحماية على كل الصفحات
+@app.before_request
+def require_authentication():
+    auth = request.authorization
+    if not auth or not check_auth(auth.username, auth.password):
+        return authenticate()
+
+# ملف البيانات
 DATA_FILE = "customers.json"
 
 def load_customers():
