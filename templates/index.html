@@ -78,6 +78,20 @@
     background-color: #008fcc;
   }
 
+  /* زر السهم الخاص بالعرض/الإخفاء */
+  #toggleListBtn {
+    background: none;
+    border: none;
+    color: #00d8ff;
+    font-size: 1.5rem;
+    cursor: pointer;
+    margin-bottom: 10px;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
   table {
     width: 100%;
     border-collapse: collapse;
@@ -213,42 +227,45 @@
     <button type="submit">Add Customer</button>
   </form>
 
-  <h2>Customers List</h2>
-  <table id="customersTable">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Phone</th>
-        <th>App Name</th>
-        <th>Join Date</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for customer in customers %}
-      <tr>
-        <td data-label="Name">{{ customer.name }}</td>
-        <td data-label="Phone">{{ customer.phone }}</td>
-        <td data-label="App Name">{{ customer.app_name }}</td>
-        <td data-label="Join Date">{{ customer.join_date }}</td>
-        <td data-label="Status">
-          {% if customer.paid %}
-            <span class="paid">Paid</span>
-          {% else %}
-            <span class="not-paid">Not Paid</span>
-          {% endif %}
-        </td>
-        <td data-label="Actions">
-          {% if not customer.paid %}
-          <button class="action-btn mark-paid-btn" data-phone="{{ customer.phone }}">Mark Paid</button>
-          {% endif %}
-          <button class="action-btn delete-btn" data-phone="{{ customer.phone }}">Delete</button>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
+  <button id="toggleListBtn"><span id="arrow">▶</span> Customers List</button>
+
+  <div id="customersContainer" style="display:none;">
+    <table id="customersTable">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>App Name</th>
+          <th>Join Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for customer in customers %}
+        <tr>
+          <td data-label="Name">{{ customer.name }}</td>
+          <td data-label="Phone">{{ customer.phone }}</td>
+          <td data-label="App Name">{{ customer.app_name }}</td>
+          <td data-label="Join Date">{{ customer.join_date }}</td>
+          <td data-label="Status">
+            {% if customer.paid %}
+              <span class="paid">Paid</span>
+            {% else %}
+              <span class="not-paid">Not Paid</span>
+            {% endif %}
+          </td>
+          <td data-label="Actions">
+            {% if not customer.paid %}
+            <button class="action-btn mark-paid-btn" data-phone="{{ customer.phone }}">Mark Paid</button>
+            {% endif %}
+            <button class="action-btn delete-btn" data-phone="{{ customer.phone }}">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </main>
 
 <script>
@@ -331,6 +348,21 @@
       } catch {
         showMessage("Error marking paid.", true);
       }
+    }
+  });
+
+  // Toggle Customers List visibility
+  const toggleBtn = document.getElementById("toggleListBtn");
+  const customersContainer = document.getElementById("customersContainer");
+  const arrow = document.getElementById("arrow");
+
+  toggleBtn.addEventListener("click", () => {
+    if (customersContainer.style.display === "none") {
+      customersContainer.style.display = "block";
+      arrow.textContent = "▼"; // سهم للأسفل
+    } else {
+      customersContainer.style.display = "none";
+      arrow.textContent = "▶"; // سهم لليمين
     }
   });
 </script>
