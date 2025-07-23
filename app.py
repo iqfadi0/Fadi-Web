@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 import json
 import os
 from datetime import datetime
@@ -7,48 +7,36 @@ app = Flask(__name__)
 
 DATA_FILE = "customers.json"
 
-# تحميل العملاء
 def load_customers():
     if not os.path.exists(DATA_FILE):
-        return []
-    with open(DATA_FILE, "r", encoding="utf-8") as f:
-        try:
-            return json.load(f)
-        except:
-            return []
+        with open(DATA_FILE, "w") as f:
+            f.write("[]")
+    with open(DATA_FILE, "r") as f:
+        return json.load(f)
 
-# حفظ العملاء
 def save_customers(customers):
-    with open(DATA_FILE, "w", encoding="utf-8") as f:
-        json.dump(customers, f, indent=2, ensure_ascii=False)
+    with open(DATA_FILE, "w") as f:
+        json.dump(customers, f, indent=2)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
-
-# API لجلب العملاء
-@app.route("/api/customers", methods=["GET"])
-def get_customers():
     customers = load_customers()
-    return jsonify(customers)
+    return render_template("index.html", customers=customers)
 
-# API لإضافة عميل جديد
-@app.route("/api/customers", methods=["POST"])
+@app.route("/add_customer", methods=["POST"])
 def add_customer():
     data = request.get_json()
     name = data.get("name", "").strip()
     phone = data.get("phone", "").strip()
     if not name or not phone:
-        return jsonify({"success": False, "message": "الاسم ورقم الهاتف مطلوبان"}), 400
-    
+        return jsonify({"success": False, "message": "Name and phone are required."})
+
     customers = load_customers()
-    # تحقق من عدم تكرار الاسم أو الرقم
+    # Check if customer already exists by name or phone
     for c in customers:
-        if c["name"].lower() == name.lower():
-            return jsonify({"success": False, "message": "العميل موجود مسبقًا"}), 400
-        if c["phone"] == phone:
-            return jsonify({"success": False, "message": "رقم الهاتف مستخدم مسبقًا"}), 400
-    
+        if c["name"].lower() == name.lower() or c["phone"] == phone:
+            return jsonify({"success": False, "message": "Customer already exists."})
+
     new_customer = {
         "name": name,
         "phone": phone,
@@ -57,28 +45,39 @@ def add_customer():
     }
     customers.append(new_customer)
     save_customers(customers)
-    return jsonify({"success": True, "message": "تم إضافة العميل بنجاح"})
+    return jsonify({"success": True, "customer": new_customer})
 
-# API لتحديث حالة الدفع
-@app.route("/api/customers/<phone>/paid", methods=["POST"])
-def mark_paid(phone):
+@app.route("/delete_customer", methods=["POST"])
+def delete_customer():
+    data = request.get_json()
+    phone = data.get("phone", "").strip()
+    if not phone:
+        return jsonify({"success": False, "message": "Phone is required."})
+
+    customers = load_customers()
+    new_customers = [c for c in customers if c["phone"] != phone]
+
+    if len(customers) == len(new_customers):
+        return jsonify({"success": False, "message": "Customer not found."})
+
+    save_customers(new_customers)
+    return jsonify({"success": True})
+
+@app.route("/mark_paid", methods=["POST"])
+def mark_paid():
+    data = request.get_json()
+    phone = data.get("phone", "").strip()
+    if not phone:
+        return jsonify({"success": False, "message": "Phone is required."})
+
     customers = load_customers()
     for c in customers:
         if c["phone"] == phone:
             c["paid"] = True
             save_customers(customers)
-            return jsonify({"success": True, "message": "تم تحديث حالة الدفع"})
-    return jsonify({"success": False, "message": "العميل غير موجود"}), 404
+            return jsonify({"success": True})
 
-# API لحذف عميل
-@app.route("/api/customers/<phone>", methods=["DELETE"])
-def delete_customer(phone):
-    customers = load_customers()
-    new_customers = [c for c in customers if c["phone"] != phone]
-    if len(new_customers) == len(customers):
-        return jsonify({"success": False, "message": "العميل غير موجود"}), 404
-    save_customers(new_customers)
-    return jsonify({"success": True, "message": "تم حذف العميل"})
+    return jsonify({"success": False, "message": "Customer not found."})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
