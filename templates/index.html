@@ -1,74 +1,23 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>إدارة المشتركين</title>
-    <style>
-        body { background-color: #111; color: #eee; font-family: sans-serif; text-align: center; }
-        table { width: 90%; margin: auto; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #444; padding: 10px; }
-        th { background-color: #222; }
-        .toggle-btn { cursor: pointer; color: lightgreen; }
-        .delete-btn { color: red; cursor: pointer; }
-        .arrow { cursor: pointer; font-size: 18px; }
-        #customer-table { display: none; }
-    </style>
-    <script>
-        function toggleTable() {
-            const table = document.getElementById("customer-table");
-            const arrow = document.getElementById("arrow-icon");
-            if (table.style.display === "none") {
-                table.style.display = "table";
-                arrow.textContent = "▼";
-            } else {
-                table.style.display = "none";
-                arrow.textContent = "▶";
-            }
-        }
-    </script>
-</head>
-<body>
-    <h1>📋 إدارة المشتركين</h1>
-    <p>⏰ الآن: {{ now }}</p>
+<!-- أضف هذا الزر قبل <h2>Customers List -->
+<button id="toggleListBtn" style="
+  background: none;
+  border: none;
+  color: #00d8ff;
+  font-size: 1.5rem;
+  cursor: pointer;
+  margin-bottom: 10px;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+">
+  <span id="arrow">▶</span> Customers List
+</button>
 
-    <form method="POST" action="/add">
-        <input name="name" placeholder="الاسم" required>
-        <input name="phone" placeholder="رقم الهاتف" required>
-        <label>✅ دفع؟ <input type="checkbox" name="paid"></label>
-        <input name="start_date" type="date" required>
-        <input name="end_date" type="date" required>
-        <button type="submit">➕ إضافة</button>
-    </form>
-
-    <h2 onclick="toggleTable()" style="margin-top: 30px;">
-        <span id="arrow-icon" class="arrow">▶</span> قائمة المشتركين
-    </h2>
-
-    <table id="customer-table">
-        <tr>
-            <th>الاسم</th>
-            <th>الهاتف</th>
-            <th>مدفوع؟</th>
-            <th>من</th>
-            <th>إلى</th>
-            <th>إجراءات</th>
-        </tr>
-        {% for c in customers %}
-        <tr>
-            <td>{{ c.name }}</td>
-            <td>{{ c.phone }}</td>
-            <td>
-                <a href="/toggle/{{ loop.index0 }}" class="toggle-btn">
-                    {% if c.paid %}✅{% else %}❌{% endif %}
-                </a>
-            </td>
-            <td>{{ c.start_date }}</td>
-            <td>{{ c.end_date }}</td>
-            <td>
-                <a href="/delete/{{ loop.index0 }}" class="delete-btn">🗑️ حذف</a>
-            </td>
-        </tr>
-        {% endfor %}
-    </table>
-</body>
-</html>
+<!-- غلف جدول العملاء بـ div له id -->
+<div id="customersContainer" style="display:none;">
+  <table id="customersTable">
+    <!-- الجدول كما هو بدون تعديل -->
+    ...
+  </table>
+</div>
