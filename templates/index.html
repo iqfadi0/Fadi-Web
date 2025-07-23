@@ -5,86 +5,112 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Customer Management</title>
 <style>
-  * {
-    margin: 0; padding: 0; box-sizing: border-box;
-  }
   body {
     background-color: #121212;
     color: #eee;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 30px 15px;
+    margin: 0; padding: 20px;
   }
-  header {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 25px;
+  h1 {
     color: #00d8ff;
-    text-shadow: 0 0 8px #00d8ff99;
+    margin-bottom: 20px;
+    text-align: center;
   }
-  main {
-    background-color: #1e1e1e;
-    border-radius: 12px;
+  table {
     width: 100%;
-    max-width: 450px;
-    box-shadow: 0 0 15px #00d8ff44;
-    padding: 20px 25px;
+    max-width: 700px;
+    margin: auto;
+    border-collapse: collapse;
   }
-  h2 {
-    color: #00d8ff;
-    margin-bottom: 15px;
-    font-weight: 600;
-    border-bottom: 2px solid #00d8ff;
-    padding-bottom: 8px;
+  th, td {
+    border: 1px solid #00aaff;
+    padding: 10px;
+    text-align: center;
   }
-  p {
-    font-size: 1rem;
-    line-height: 1.5;
-    margin-bottom: 10px;
+  th {
+    background-color: #00aaff;
+    color: #121212;
+  }
+  tr:nth-child(even) {
+    background-color: #1e1e1e;
   }
   .btn {
     background-color: #00aaff;
     color: #121212;
     border: none;
-    padding: 12px 20px;
-    margin-top: 15px;
-    border-radius: 8px;
+    padding: 8px 12px;
     cursor: pointer;
+    border-radius: 5px;
     font-weight: 600;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-    width: 100%;
   }
   .btn:hover {
     background-color: #008fcc;
   }
-  footer {
-    margin-top: 40px;
-    font-size: 0.9rem;
-    color: #555;
+  .btn-danger {
+    background-color: #ff5555;
+    color: white;
   }
-  @media (max-width: 480px) {
-    main {
-      padding: 15px 20px;
-    }
-    header {
-      font-size: 1.5rem;
-    }
+  .btn-danger:hover {
+    background-color: #cc4444;
+  }
+  .top-buttons {
+    max-width: 700px;
+    margin: 20px auto;
+    text-align: center;
+  }
+  a.button-link {
+    text-decoration: none;
+    margin: 0 10px;
   }
 </style>
 </head>
 <body>
-<header>Customer Management System</header>
-<main>
-  <h2>Welcome!</h2>
-  <p>This is your management dashboard.</p>
-  <p>Use the Telegram bot to manage customers.</p>
-  <button class="btn" onclick="alert('Feature coming soon!')">Show Customers List</button>
-</main>
-<footer>© 2025 Fadi</footer>
+  <h1>قائمة المشتركين</h1>
+
+  <div class="top-buttons">
+    <a href="{{ url_for('add_customer') }}" class="button-link">
+      <button class="btn">➕ إضافة مشترك جديد</button>
+    </a>
+  </div>
+
+  {% if customers %}
+  <table>
+    <thead>
+      <tr>
+        <th>الاسم</th>
+        <th>تاريخ الاشتراك</th>
+        <th>حالة الدفع</th>
+        <th>الإجراءات</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for name, info in customers.items() %}
+      <tr>
+        <td>{{ name }}</td>
+        <td>{{ info.join_date }}</td>
+        <td>
+          {% if info.paid %}
+            ✅ مدفوع
+          {% else %}
+            ❌ غير مدفوع
+          {% endif %}
+        </td>
+        <td>
+          {% if not info.paid %}
+          <form style="display:inline;" method="post" action="{{ url_for('confirm_payment', name=name) }}">
+            <button class="btn" type="submit">تأكيد الدفع</button>
+          </form>
+          {% endif %}
+          <form style="display:inline;" method="post" action="{{ url_for('delete_customer', name=name) }}" onsubmit="return confirm('هل أنت متأكد من حذف هذا المشترك؟');">
+            <button class="btn btn-danger" type="submit">حذف</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p style="text-align:center; margin-top: 50px;">لا يوجد مشتركين حالياً.</p>
+  {% endif %}
 </body>
 </html>
