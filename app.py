@@ -14,8 +14,8 @@ DATA_FILE = "customers.json"
 USERNAME = os.getenv("BASIC_AUTH_USERNAME", "admin")
 PASSWORD = os.getenv("BASIC_AUTH_PASSWORD", "1234")
 
-TELEGRAM_TOKEN = "8003548627:AAHpSyXnVK-Nyz-oCzPUddcXQ9PQQPSAeQo"  # توكن البوت
-CHAT_ID = 7777263915  # ايدي حسابك في تلغرام
+TELEGRAM_TOKEN = "8003548627:AAHpSyXnVK-Nyz-oCzPUddcXQ9PQQPSAeQo"  # Bot token
+CHAT_ID = 7777263915  # Your Telegram chat ID
 
 bot = Bot(token=TELEGRAM_TOKEN)
 
@@ -105,15 +105,15 @@ def mark_paid():
 
 def send_telegram_reminder():
     try:
-        message = "تذكير يومي: لا تنسى مراجعة قائمة العملاء وتحديث الحالات."
+        message = "Daily reminder: Don't forget to review the customer list and update statuses."
         bot.send_message(chat_id=CHAT_ID, text=message)
         print("Telegram reminder sent.")
     except Exception as e:
         print("Error sending Telegram message:", e)
 
-# ضبط الجدولة - كل يوم الساعة 8 صباحًا بتوقيت بيروت
+# Schedule the reminder every day at 10:00 AM Beirut time
 scheduler = BackgroundScheduler(timezone=pytz.timezone("Asia/Beirut"))
-scheduler.add_job(send_telegram_reminder, 'cron', hour=8, minute=0)
+scheduler.add_job(send_telegram_reminder, 'cron', hour=10, minute=0)
 scheduler.start()
 
 HTML_TEMPLATE = '''
@@ -124,7 +124,7 @@ HTML_TEMPLATE = '''
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Customer Management System</title>
 <style>
-  /* نفس الستايل السابق */
+  /* same styles as before */
   * {
     margin: 0;
     padding: 0;
