@@ -1,170 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Customer Management</title>
-<style>
-  /* Reset */
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    background-color: #121212;
-    color: #eee;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 30px 15px;
-  }
-
-  header {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 25px;
-    color: #00d8ff;
-    text-shadow: 0 0 8px #00d8ff99;
-  }
-
-  main {
-    background-color: #1e1e1e;
-    border-radius: 12px;
-    width: 100%;
-    max-width: 700px;
-    box-shadow: 0 0 15px #00d8ff44;
-    padding: 20px 25px;
-  }
-
-  h2 {
-    color: #00d8ff;
-    margin-bottom: 15px;
-    font-weight: 600;
-    border-bottom: 2px solid #00d8ff;
-    padding-bottom: 8px;
-  }
-
-  form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 25px;
-    flex-wrap: wrap;
-  }
-
-  input[type="text"], input[type="tel"] {
-    flex: 1 1 200px;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    font-size: 1rem;
-  }
-
-  button {
-    background-color: #00aaff;
-    color: #121212;
-    border: none;
-    padding: 12px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-  }
-
-  button:hover {
-    background-color: #008fcc;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th, td {
-    padding: 10px 12px;
-    text-align: left;
-    border-bottom: 1px solid #333;
-  }
-
-  th {
-    background-color: #222;
-  }
-
-  tr:hover {
-    background-color: #2a2a2a;
-  }
-
-  .btn-small {
-    padding: 6px 12px;
-    font-size: 0.9rem;
-  }
-
-  .paid-true {
-    color: #4caf50;
-    font-weight: 700;
-  }
-
-  .paid-false {
-    color: #f44336;
-    font-weight: 700;
-  }
-</style>
+    <meta charset="UTF-8">
+    <title>Customer Manager</title>
+    <style>
+        body { font-family: Arial; background: #111; color: #fff; padding: 20px; }
+        input, button, select { padding: 8px; margin: 5px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #444; text-align: left; }
+        th { background: #222; }
+        tr:nth-child(even) { background: #1a1a1a; }
+        .paid { color: lightgreen; font-weight: bold; }
+    </style>
 </head>
 <body>
-<header>Customer Management System</header>
-<main>
-  <h2>Add New Customer</h2>
-  <form method="POST" action="/add">
-    <input type="text" name="name" placeholder="Customer Name" required />
-    <input type="tel" name="phone" placeholder="Phone Number" required />
-    <input type="text" name="app_name" placeholder="App Name" required />
-    <button type="submit">Add Customer</button>
-  </form>
+    <h2>Add New Customer</h2>
+    <form action="/add" method="POST">
+        <input type="text" name="name" placeholder="Full Name" required>
+        <input type="text" name="phone" placeholder="Phone Number" required>
+        <input type="text" name="app_name" placeholder="App Name (e.g., Netflix)" required>
+        <button type="submit">Add Customer</button>
+    </form>
 
-  <h2>Customers List</h2>
-  {% if customers %}
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Phone</th>
-        <th>App Name</th>
-        <th>Join Date</th>
-        <th>Paid</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for customer in customers %}
-      <tr>
-        <td>{{ customer.name }}</td>
-        <td>{{ customer.phone }}</td>
-        <td>{{ customer.app_name }}</td>
-        <td>{{ customer.join_date }}</td>
-        <td class="paid-{{ customer.paid }}">{{ "Yes" if customer.paid else "No" }}</td>
-        <td>
-          <form method="POST" action="/toggle_paid/{{ loop.index0 }}" style="display:inline;">
-            <button type="submit" class="btn-small">
-              {% if customer.paid %}Mark Unpaid{% else %}Mark Paid{% endif %}
-            </button>
-          </form>
-          <form method="POST" action="/delete/{{ loop.index0 }}" style="display:inline;">
-            <button type="submit" class="btn-small" style="background-color:#f44336; color:#fff;">
-              Delete
-            </button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>No customers found.</p>
-  {% endif %}
-</main>
+    <h2>Customers List</h2>
+    <table>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>App</th>
+            <th>Subscribe Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for c in customers %}
+        <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ c.name }}</td>
+            <td>{{ c.phone }}</td>
+            <td>{{ c.app_name }}</td>
+            <td>{{ c.date }}</td>
+            <td>
+                {% if c.paid %}
+                    <span class="paid">Paid</span>
+                {% else %}
+                    <form action="/pay/{{ loop.index0 }}" method="POST">
+                        <button type="submit">Mark as Paid</button>
+                    </form>
+                {% endif %}
+            </td>
+            <td>
+                <form action="/delete/{{ loop.index0 }}" method="POST" onsubmit="return confirm('Delete this customer?');">
+                    <button type="submit">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
 </body>
 </html>
