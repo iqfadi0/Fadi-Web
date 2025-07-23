@@ -9,108 +9,195 @@
     background-color: #121212;
     color: #eee;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0; padding: 20px;
+    margin: 0;
+    padding: 20px;
   }
   h1 {
     color: #00d8ff;
-    margin-bottom: 20px;
     text-align: center;
+  }
+  .container {
+    max-width: 700px;
+    margin: auto;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px #00d8ff44;
+  }
+  label, input {
+    display: block;
+    margin-bottom: 10px;
+  }
+  input[type="text"], input[type="tel"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+  }
+  button {
+    background-color: #00aaff;
+    border: none;
+    padding: 12px 20px;
+    color: #121212;
+    font-weight: 600;
+    font-size: 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  button:hover {
+    background-color: #008fcc;
   }
   table {
     width: 100%;
-    max-width: 700px;
-    margin: auto;
     border-collapse: collapse;
+    margin-top: 25px;
   }
   th, td {
-    border: 1px solid #00aaff;
+    border: 1px solid #00d8ff;
     padding: 10px;
     text-align: center;
   }
   th {
-    background-color: #00aaff;
+    background-color: #00d8ff;
     color: #121212;
   }
-  tr:nth-child(even) {
-    background-color: #1e1e1e;
+  .paid {
+    color: #4caf50;
+    font-weight: bold;
   }
-  .btn {
-    background-color: #00aaff;
-    color: #121212;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    border-radius: 5px;
-    font-weight: 600;
+  .not-paid {
+    color: #f44336;
+    font-weight: bold;
   }
-  .btn:hover {
-    background-color: #008fcc;
-  }
-  .btn-danger {
-    background-color: #ff5555;
+  .btn-pay {
+    background-color: #4caf50;
     color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
   }
-  .btn-danger:hover {
-    background-color: #cc4444;
-  }
-  .top-buttons {
-    max-width: 700px;
-    margin: 20px auto;
-    text-align: center;
-  }
-  a.button-link {
-    text-decoration: none;
-    margin: 0 10px;
+  .btn-pay:hover {
+    background-color: #388e3c;
   }
 </style>
 </head>
 <body>
-  <h1>قائمة المشتركين</h1>
+  <h1>Customer Management</h1>
+  <div class="container">
+    <h2>Add New Customer</h2>
+    <label for="name">Name:</label>
+    <input type="text" id="name" placeholder="Enter customer name" />
+    <label for="phone">Phone:</label>
+    <input type="tel" id="phone" placeholder="Enter phone number" />
+    <button onclick="addCustomer()">Add Customer</button>
 
-  <div class="top-buttons">
-    <a href="{{ url_for('add_customer') }}" class="button-link">
-      <button class="btn">➕ إضافة مشترك جديد</button>
-    </a>
+    <h2>Customers List</h2>
+    <table id="customers-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Join Date</th>
+          <th>Paid</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="customers-body">
+      </tbody>
+    </table>
   </div>
 
-  {% if customers %}
-  <table>
-    <thead>
-      <tr>
-        <th>الاسم</th>
-        <th>تاريخ الاشتراك</th>
-        <th>حالة الدفع</th>
-        <th>الإجراءات</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for name, info in customers.items() %}
-      <tr>
-        <td>{{ name }}</td>
-        <td>{{ info.join_date }}</td>
+<script>
+  async function fetchCustomers() {
+    const res = await fetch('/customers');
+    const data = await res.json();
+    const tbody = document.getElementById('customers-body');
+    tbody.innerHTML = '';
+
+    for (const name in data) {
+      const customer = data[name];
+      const tr = document.createElement('tr');
+
+      tr.innerHTML = `
+        <td>${name}</td>
+        <td>${customer.phone}</td>
+        <td>${customer.join_date}</td>
+        <td class="${customer.paid ? 'paid' : 'not-paid'}">${customer.paid ? '✅ Paid' : '❌ Not Paid'}</td>
         <td>
-          {% if info.paid %}
-            ✅ مدفوع
-          {% else %}
-            ❌ غير مدفوع
-          {% endif %}
+          ${customer.paid ? '' : `<button class="btn-pay" onclick="confirmPayment('${name}')">Confirm Payment</button>`}
+          <button onclick="deleteCustomer('${name}')">Delete</button>
         </td>
-        <td>
-          {% if not info.paid %}
-          <form style="display:inline;" method="post" action="{{ url_for('confirm_payment', name=name) }}">
-            <button class="btn" type="submit">تأكيد الدفع</button>
-          </form>
-          {% endif %}
-          <form style="display:inline;" method="post" action="{{ url_for('delete_customer', name=name) }}" onsubmit="return confirm('هل أنت متأكد من حذف هذا المشترك؟');">
-            <button class="btn btn-danger" type="submit">حذف</button>
-          </form>
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p style="text-align:center; margin-top: 50px;">لا يوجد مشتركين حالياً.</p>
-  {% endif %}
+      `;
+      tbody.appendChild(tr);
+    }
+  }
+
+  async function addCustomer() {
+    const name = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    if (!name || !phone) {
+      alert('Please enter both name and phone');
+      return;
+    }
+
+    const res = await fetch('/add_customer', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name, phone})
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(data.message);
+      document.getElementById('name').value = '';
+      document.getElementById('phone').value = '';
+      fetchCustomers();
+    } else {
+      alert(data.error);
+    }
+  }
+
+  async function deleteCustomer(name) {
+    if (!confirm(`Are you sure you want to delete customer: ${name}?`)) return;
+
+    const res = await fetch('/delete_customer', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name})
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(data.message);
+      fetchCustomers();
+    } else {
+      alert(data.error);
+    }
+  }
+
+  async function confirmPayment(name) {
+    const res = await fetch('/confirm_payment', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({name})
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      alert(data.message);
+      fetchCustomers();
+    } else {
+      alert(data.error);
+    }
+  }
+
+  // Load customers list on page load
+  window.onload = fetchCustomers;
+</script>
 </body>
 </html>
