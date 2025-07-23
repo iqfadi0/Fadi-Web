@@ -43,10 +43,6 @@
     font-weight: 600;
     border-bottom: 2px solid #00d8ff;
     padding-bottom: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    cursor: pointer;
   }
 
   form {
@@ -208,11 +204,8 @@
 <body>
 <header>Customer Management System</header>
 <main>
-  <h2 onclick="toggleTable()" aria-label="Toggle Customers List">
-    Customers List
-    <span id="toggleArrow">⯆</span>
-  </h2>
-
+  <h2>Add New Customer</h2>
+  <div id="message"></div>
   <form id="addCustomerForm">
     <input type="text" id="name" placeholder="Name" required />
     <input type="text" id="phone" placeholder="Phone Number" required />
@@ -220,43 +213,42 @@
     <button type="submit">Add Customer</button>
   </form>
 
-  <div id="customersSection">
-    <table id="customersTable">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>App Name</th>
-          <th>Join Date</th>
-          <th>Status</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for customer in customers %}
-        <tr>
-          <td data-label="Name">{{ customer.name }}</td>
-          <td data-label="Phone">{{ customer.phone }}</td>
-          <td data-label="App Name">{{ customer.app_name }}</td>
-          <td data-label="Join Date">{{ customer.join_date }}</td>
-          <td data-label="Status">
-            {% if customer.paid %}
-              <span class="paid">Paid</span>
-            {% else %}
-              <span class="not-paid">Not Paid</span>
-            {% endif %}
-          </td>
-          <td data-label="Actions">
-            {% if not customer.paid %}
-            <button class="action-btn mark-paid-btn" data-phone="{{ customer.phone }}">Mark Paid</button>
-            {% endif %}
-            <button class="action-btn delete-btn" data-phone="{{ customer.phone }}">Delete</button>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  <h2>Customers List</h2>
+  <table id="customersTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Phone</th>
+        <th>App Name</th>
+        <th>Join Date</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for customer in customers %}
+      <tr>
+        <td data-label="Name">{{ customer.name }}</td>
+        <td data-label="Phone">{{ customer.phone }}</td>
+        <td data-label="App Name">{{ customer.app_name }}</td>
+        <td data-label="Join Date">{{ customer.join_date }}</td>
+        <td data-label="Status">
+          {% if customer.paid %}
+            <span class="paid">Paid</span>
+          {% else %}
+            <span class="not-paid">Not Paid</span>
+          {% endif %}
+        </td>
+        <td data-label="Actions">
+          {% if not customer.paid %}
+          <button class="action-btn mark-paid-btn" data-phone="{{ customer.phone }}">Mark Paid</button>
+          {% endif %}
+          <button class="action-btn delete-btn" data-phone="{{ customer.phone }}">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
 </main>
 
 <script>
@@ -341,19 +333,6 @@
       }
     }
   });
-
-  // Toggle customers table visibility and arrow
-  function toggleTable() {
-    const section = document.getElementById("customersSection");
-    const arrow = document.getElementById("toggleArrow");
-    if (section.style.display === "none") {
-      section.style.display = "block";
-      arrow.textContent = "⯆";
-    } else {
-      section.style.display = "none";
-      arrow.textContent = "⯈";
-    }
-  }
-
-  // جدول ظاهر افتراضياً
-  document.getElementBy
+</script>
+</body>
+</html>
