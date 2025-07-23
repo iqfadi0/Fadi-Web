@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify
+from flask import Flask, render_template, request, jsonify
 import json
 import os
-import datetime
+from datetime import date
 
 app = Flask(__name__)
 
@@ -17,43 +17,58 @@ def save_customers(customers):
     with open(DATA_FILE, "w") as f:
         json.dump(customers, f, indent=2)
 
-@app.route("/")
+@app.route('/')
 def home():
-    customers = load_customers()
-    # نرسل البيانات للصفحة الرئيسية
-    return render_template("index.html", customers=customers)
+    return render_template('index.html')
 
-@app.route("/add", methods=["GET", "POST"])
+@app.route('/customers', methods=['GET'])
+def get_customers():
+    customers = load_customers()
+    return jsonify(customers)
+
+@app.route('/add_customer', methods=['POST'])
 def add_customer():
-    if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        if not name:
-            return "Name is required!", 400
-        customers = load_customers()
-        if name in customers:
-            return "Customer already exists!", 400
-        join_date = datetime.date.today().isoformat()
-        customers[name] = {"join_date": join_date, "paid": False}
-        save_customers(customers)
-        return redirect(url_for("home"))
-    return render_template("add.html")
+    data = request.json
+    name = data.get('name')
+    phone = data.get('phone')
+    if not name or not phone:
+        return jsonify({"error": "Name and phone required"}), 400
 
-@app.route("/delete/<name>", methods=["POST"])
-def delete_customer(name):
     customers = load_customers()
     if name in customers:
-        del customers[name]
-        save_customers(customers)
-    return redirect(url_for("home"))
+        return jsonify({"error": "Customer already exists"}), 400
 
-@app.route("/pay/<name>", methods=["POST"])
-def confirm_payment(name):
+    customers[name] = {
+        "phone": phone,
+        "join_date": str(date.today()),
+        "paid": False
+    }
+    save_customers(customers)
+    return jsonify({"message": f"Customer {name} added."})
+
+@app.route('/delete_customer', methods=['POST'])
+def delete_customer():
+    data = request.json
+    name = data.get('name')
     customers = load_customers()
-    if name in customers:
-        customers[name]["paid"] = True
-        save_customers(customers)
-    return redirect(url_for("home"))
+    if name not in customers:
+        return jsonify({"error": "Customer not found"}), 404
 
-if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    del customers[name]
+    save_customers(customers)
+    return jsonify({"message": f"Customer {name} deleted."})
+
+@app.route('/confirm_payment', methods=['POST'])
+def confirm_payment():
+    data = request.json
+    name = data.get('name')
+    customers = load_customers()
+    if name not in customers:
+        return jsonify({"error": "Customer not found"}), 404
+
+    customers[name]["paid"] = True
+    save_customers(customers)
+    return jsonify({"message": f"Payment confirmed for {name}."})
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=10000)
