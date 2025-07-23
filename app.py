@@ -3,6 +3,7 @@ from flask_basicauth import BasicAuth
 import json
 import os
 import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -24,6 +25,11 @@ def save_customers(customers):
     with open(DATA_FILE, "w") as f:
         json.dump(customers, f, indent=2)
 
+def get_local_today():
+    tz = pytz.timezone('Asia/Beirut')
+    now = datetime.datetime.now(tz)
+    return now.strftime("%d-%m-%Y")
+
 @app.route("/")
 def home():
     customers = load_customers()
@@ -44,7 +50,7 @@ def add_customer():
         if cust["phone"] == phone:
             return jsonify({"success": False, "message": "Customer with this phone already exists."})
 
-    today = datetime.date.today().isoformat()
+    today = get_local_today()
     customers.append({
         "name": name,
         "phone": phone,
