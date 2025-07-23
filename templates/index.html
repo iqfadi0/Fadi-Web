@@ -5,29 +5,86 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Customer Management</title>
 <style>
+  * {
+    margin: 0; padding: 0; box-sizing: border-box;
+  }
   body {
     background-color: #121212;
     color: #eee;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     min-height: 100vh;
-    margin: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding: 20px;
+    justify-content: flex-start;
+    padding: 30px 15px;
   }
-  h1 {
+  header {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    color: #00d8ff;
+    text-shadow: 0 0 8px #00d8ff99;
+  }
+  main {
+    background-color: #1e1e1e;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 450px;
+    box-shadow: 0 0 15px #00d8ff44;
+    padding: 20px 25px;
+  }
+  h2 {
     color: #00d8ff;
     margin-bottom: 15px;
+    font-weight: 600;
+    border-bottom: 2px solid #00d8ff;
+    padding-bottom: 8px;
   }
   p {
-    font-size: 1.2rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .btn {
+    background-color: #00aaff;
+    color: #121212;
+    border: none;
+    padding: 12px 20px;
+    margin-top: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: background-color 0.3s ease;
+    width: 100%;
+  }
+  .btn:hover {
+    background-color: #008fcc;
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 0.9rem;
+    color: #555;
+  }
+  @media (max-width: 480px) {
+    main {
+      padding: 15px 20px;
+    }
+    header {
+      font-size: 1.5rem;
+    }
   }
 </style>
 </head>
 <body>
-  <h1>Welcome to Customer Management System</h1>
-  <p>This is a simple and elegant dark themed web page.</p>
+<header>Customer Management System</header>
+<main>
+  <h2>Welcome!</h2>
+  <p>This is your management dashboard.</p>
+  <p>Use the Telegram bot to manage customers.</p>
+  <button class="btn" onclick="alert('Feature coming soon!')">Show Customers List</button>
+</main>
+<footer>© 2025 Fadi</footer>
 </body>
 </html>
