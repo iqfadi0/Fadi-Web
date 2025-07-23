@@ -7,9 +7,9 @@ app = Flask(__name__)
 
 DATA_FILE = "customers.json"
 
-# إعدادات اليوزر والباسورد - غيّرها حسب حاجتك أو خزنها في متغيرات بيئية
-USERNAME = os.getenv("USERNAME", "admin")
-PASSWORD = os.getenv("PASSWORD", "1234")
+# قراءة اسم المستخدم وكلمة السر من متغيرات البيئة BASIC_AUTH_USERNAME و BASIC_AUTH_PASSWORD
+USERNAME = os.getenv("BASIC_AUTH_USERNAME", "admin")
+PASSWORD = os.getenv("BASIC_AUTH_PASSWORD", "1234")
 
 def check_auth(username, password):
     return username == USERNAME and password == PASSWORD
@@ -22,8 +22,6 @@ def authenticate():
 
 @app.before_request
 def require_auth():
-    # السماح لبعض المسارات العامة (لو حبيت)
-    # مثلاً لو عندك api مفتوحة، غير هنا
     auth = request.authorization
     if not auth or not check_auth(auth.username, auth.password):
         return authenticate()
@@ -55,7 +53,6 @@ def add_customer():
 
     customers = load_customers()
 
-    # تأكد أنه ما في نفس رقم الهاتف مكرر
     if any(c["phone"] == phone for c in customers):
         return jsonify({"success": False, "message": "Customer with this phone already exists."})
 
@@ -98,7 +95,6 @@ def mark_paid():
     save_customers(customers)
     return jsonify({"success": True})
 
-# هذا هو قالب الـ HTML مع تعديل السهم - استخدمته render_template_string لسهولة الدمج هنا
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -107,7 +103,7 @@ HTML_TEMPLATE = '''
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Customer Management System</title>
 <style>
-  /* نفس ستايلاتك بالضبط */
+  /* (الستايل كما في الكود السابق) */
   * {
     margin: 0;
     padding: 0;
@@ -217,7 +213,6 @@ HTML_TEMPLATE = '''
     height: 24px;
     text-align: center;
   }
-  /* Responsive for mobile */
   @media (max-width: 480px) {
     body {
       padding: 20px 10px;
