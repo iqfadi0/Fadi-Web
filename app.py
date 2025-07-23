@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, redirect, url_for
 import json
 import os
-import datetime
+from datetime import datetime
 
 app = Flask(__name__)
 
@@ -22,60 +22,41 @@ def home():
     customers = load_customers()
     return render_template("index.html", customers=customers)
 
-@app.route("/add_customer", methods=["POST"])
+@app.route("/add", methods=["POST"])
 def add_customer():
-    data = request.json
-    name = data.get("name", "").strip()
-    phone = data.get("phone", "").strip()
-
-    if not name or not phone:
-        return jsonify({"success": False, "message": "Name and phone are required."})
+    name = request.form.get("name").strip()
+    phone = request.form.get("phone").strip()
+    app_name = request.form.get("app_name").strip()
+    if not name or not phone or not app_name:
+        return redirect(url_for('home'))
 
     customers = load_customers()
-
-    # Check if phone already exists
-    for cust in customers:
-        if cust["phone"] == phone:
-            return jsonify({"success": False, "message": "Customer with this phone already exists."})
-
-    today = datetime.date.today().isoformat()
+    # إضافة العميل الجديد مع تاريخ اليوم وحالة الدفع False
     customers.append({
         "name": name,
         "phone": phone,
-        "join_date": today,
+        "app_name": app_name,
+        "join_date": datetime.today().strftime("%Y-%m-%d"),
         "paid": False
     })
-
     save_customers(customers)
-    return jsonify({"success": True, "message": "Customer added successfully."})
+    return redirect(url_for('home'))
 
-@app.route("/delete_customer", methods=["POST"])
-def delete_customer():
-    data = request.json
-    phone = data.get("phone", "").strip()
-    if not phone:
-        return jsonify({"success": False, "message": "Phone is required."})
-
+@app.route("/delete/<int:index>", methods=["POST"])
+def delete_customer(index):
     customers = load_customers()
-    customers = [c for c in customers if c["phone"] != phone]
-    save_customers(customers)
-    return jsonify({"success": True, "message": "Customer deleted successfully."})
+    if 0 <= index < len(customers):
+        customers.pop(index)
+        save_customers(customers)
+    return redirect(url_for('home'))
 
-@app.route("/mark_paid", methods=["POST"])
-def mark_paid():
-    data = request.json
-    phone = data.get("phone", "").strip()
-    if not phone:
-        return jsonify({"success": False, "message": "Phone is required."})
-
+@app.route("/toggle_paid/<int:index>", methods=["POST"])
+def toggle_paid(index):
     customers = load_customers()
-    for cust in customers:
-        if cust["phone"] == phone:
-            cust["paid"] = True
-            save_customers(customers)
-            return jsonify({"success": True, "message": f"{cust['name']} marked as paid."})
-
-    return jsonify({"success": False, "message": "Customer not found."})
+    if 0 <= index < len(customers):
+        customers[index]["paid"] = not customers[index]["paid"]
+        save_customers(customers)
+    return redirect(url_for('home'))
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=10000)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
