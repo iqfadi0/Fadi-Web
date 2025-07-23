@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>إضافة مشترك جديد</title>
+<style>
+  body {
+    background-color: #121212;
+    color: #eee;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  form {
+    background-color: #1e1e1e;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 0 15px #00aaff88;
+    width: 320px;
+  }
+  h1 {
+    margin-bottom: 20px;
+    color: #00d8ff;
+    text-align: center;
+  }
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    outline: none;
+  }
+  button {
+    background-color: #00aaff;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    font-weight: 700;
+    color: #121212;
+    font-size: 1.1rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #008fcc;
+  }
+  a {
+    display: block;
+    margin-top: 15px;
+    color: #00aaff;
+    text-align: center;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+</style>
+</head>
+<body>
+  <form method="POST">
+    <h1>إضافة مشترك جديد</h1>
+    <input type="text" name="name" placeholder="اسم المشترك" required />
+    <button type="submit">إضافة</button>
+    <a href="{{ url_for('home') }}">عودة للقائمة</a>
+  </form>
+</body>
+</html>
