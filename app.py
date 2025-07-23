@@ -10,22 +10,23 @@ def index():
 
 @app.route('/add', methods=['POST'])
 def add_customer():
-    name = request.form.get('name')
-    phone = request.form.get('phone')
-    app_name = request.form.get('app_name')  # New field
-    date = datetime.now().strftime("%Y-%m-%d %H:%M")
-    customers.append({'name': name, 'phone': phone, 'app_name': app_name, 'date': date, 'paid': False})
+    name = request.form['name']
+    phone = request.form['phone']
+    app_name = request.form['app']
+    date_added = datetime.now().strftime('%Y-%m-%d %H:%M')
+    customers.append({
+        'name': name,
+        'phone': phone,
+        'app': app_name,
+        'date': date_added,
+        'paid': False
+    })
     return redirect(url_for('index'))
 
-@app.route('/pay/<int:index>', methods=['POST'])
-def pay(index):
+@app.route('/paid/<int:index>')
+def mark_paid(index):
     customers[index]['paid'] = True
     return redirect(url_for('index'))
 
-@app.route('/delete/<int:index>', methods=['POST'])
-def delete_customer(index):
-    customers.pop(index)
-    return redirect(url_for('index'))
-
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=10000)
+    app.run(debug=True)
