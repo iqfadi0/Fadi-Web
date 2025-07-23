@@ -82,12 +82,14 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 10px;
+    font-size: 0.9rem;
   }
 
   th, td {
     padding: 10px;
     border-bottom: 1px solid #333;
     text-align: left;
+    word-break: break-word;
   }
 
   th {
@@ -114,6 +116,7 @@
     cursor: pointer;
     margin-right: 5px;
     font-size: 0.9rem;
+    white-space: nowrap;
   }
 
   .action-btn:hover {
@@ -126,6 +129,75 @@
     font-weight: 600;
     height: 24px;
     text-align: center;
+  }
+
+  /* ======= Responsive for mobile ======= */
+  @media (max-width: 480px) {
+    body {
+      padding: 20px 10px;
+    }
+    main {
+      padding: 15px 15px;
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: none;
+    }
+    header {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+    }
+    form {
+      flex-direction: column;
+      gap: 12px;
+    }
+    input[type="text"], button {
+      flex: 1 1 100%;
+      min-width: unset;
+      font-size: 1.1rem;
+      padding: 12px;
+    }
+    button {
+      min-width: unset;
+    }
+    table, thead, tbody, th, td, tr {
+      display: block;
+      width: 100%;
+    }
+    thead tr {
+      display: none; /* Hide headers on mobile */
+    }
+    tbody tr {
+      margin-bottom: 15px;
+      background-color: #2a2a2a;
+      border-radius: 8px;
+      padding: 12px;
+    }
+    tbody td {
+      padding: 6px 10px;
+      position: relative;
+      padding-left: 50%;
+      text-align: right;
+    }
+    tbody td::before {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      white-space: nowrap;
+      font-weight: 600;
+      color: #00d8ff;
+      content: attr(data-label);
+      text-align: left;
+      font-size: 0.9rem;
+    }
+    .action-btn {
+      font-size: 1rem;
+      padding: 10px 16px;
+      margin: 5px 5px 0 0;
+      white-space: normal;
+      display: inline-block;
+      width: auto;
+    }
   }
 </style>
 </head>
@@ -156,18 +228,18 @@
     <tbody>
       {% for customer in customers %}
       <tr>
-        <td>{{ customer.name }}</td>
-        <td>{{ customer.phone }}</td>
-        <td>{{ customer.app_name }}</td>
-        <td>{{ customer.join_date }}</td>
-        <td>
+        <td data-label="Name">{{ customer.name }}</td>
+        <td data-label="Phone">{{ customer.phone }}</td>
+        <td data-label="App Name">{{ customer.app_name }}</td>
+        <td data-label="Join Date">{{ customer.join_date }}</td>
+        <td data-label="Status">
           {% if customer.paid %}
             <span class="paid">Paid</span>
           {% else %}
             <span class="not-paid">Not Paid</span>
           {% endif %}
         </td>
-        <td>
+        <td data-label="Actions">
           {% if not customer.paid %}
           <button class="action-btn mark-paid-btn" data-phone="{{ customer.phone }}">Mark Paid</button>
           {% endif %}
@@ -220,7 +292,6 @@
     }
   });
 
-  // Delete customer
   customersTable.addEventListener("click", async (e) => {
     if (e.target.classList.contains("delete-btn")) {
       const phone = e.target.getAttribute("data-phone");
@@ -243,7 +314,6 @@
       }
     }
 
-    // Mark paid
     if (e.target.classList.contains("mark-paid-btn")) {
       const phone = e.target.getAttribute("data-phone");
       try {
