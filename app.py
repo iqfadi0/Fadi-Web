@@ -27,9 +27,10 @@ def add_customer():
     data = request.json
     name = data.get("name", "").strip()
     phone = data.get("phone", "").strip()
+    app_name = data.get("app_name", "").strip()
 
-    if not name or not phone:
-        return jsonify({"success": False, "message": "Name and phone are required."})
+    if not name or not phone or not app_name:
+        return jsonify({"success": False, "message": "Name, phone, and app name are required."})
 
     customers = load_customers()
 
@@ -42,6 +43,7 @@ def add_customer():
     customers.append({
         "name": name,
         "phone": phone,
+        "app_name": app_name,
         "join_date": today,
         "paid": False
     })
@@ -78,4 +80,4 @@ def mark_paid():
     return jsonify({"success": False, "message": "Customer not found."})
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+    app.run(host="0.0.0.0", port=10000)
