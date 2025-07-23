@@ -61,7 +61,7 @@ def send_daily_reminder():
     bot = telegram.Bot(token=TELEGRAM_TOKEN)
     while True:
         now = datetime.now(pytz.timezone("Asia/Beirut"))
-        if now.hour == 9 and now.minute == 0:
+        if now.hour == 10 and now.minute == 0:
             customers = load_customers()
             unpaid = [c for c in customers if not c["paid"]]
             if unpaid:
