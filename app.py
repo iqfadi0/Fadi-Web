@@ -1,9 +1,17 @@
 from flask import Flask, render_template, request, jsonify
+from flask_basicauth import BasicAuth
 import json
 import os
 import datetime
 
 app = Flask(__name__)
+
+# قراءة اسم المستخدم وكلمة السر من متغيرات البيئة، أو قيم افتراضية
+app.config['BASIC_AUTH_USERNAME'] = os.getenv('BASIC_AUTH_USERNAME', 'admin')
+app.config['BASIC_AUTH_PASSWORD'] = os.getenv('BASIC_AUTH_PASSWORD', 'password')
+app.config['BASIC_AUTH_FORCE'] = True  # يجبر Basic Auth لكل الصفحات
+
+basic_auth = BasicAuth(app)
 
 DATA_FILE = "customers.json"
 
@@ -34,7 +42,6 @@ def add_customer():
 
     customers = load_customers()
 
-    # Check if phone already exists
     for cust in customers:
         if cust["phone"] == phone:
             return jsonify({"success": False, "message": "Customer with this phone already exists."})
