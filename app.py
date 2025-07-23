@@ -1,17 +1,18 @@
-from flask import Flask, render_template, request, redirect, jsonify
+from flask import Flask, render_template, request, jsonify
+from flask_basicauth import BasicAuth
 import json
 import os
-from datetime import datetime
-import pytz
-import threading
-import time
-import telegram
+import datetime
 
 app = Flask(__name__)
 
+app.config['BASIC_AUTH_USERNAME'] = os.getenv('BASIC_AUTH_USERNAME', 'admin')
+app.config['BASIC_AUTH_PASSWORD'] = os.getenv('BASIC_AUTH_PASSWORD', 'password')
+app.config['BASIC_AUTH_FORCE'] = True
+
+basic_auth = BasicAuth(app)
+
 DATA_FILE = "customers.json"
-TELEGRAM_TOKEN = "8003548627:AAHpSyXnVK-Nyz-oCzPUddcXQ9PQQPSAeQo"
-OWNER_CHAT_ID = 7777263915
 
 def load_customers():
     if not os.path.exists(DATA_FILE):
@@ -24,92 +25,64 @@ def save_customers(customers):
         json.dump(customers, f, indent=2)
 
 @app.route("/")
-def index():
+def home():
     customers = load_customers()
-    now = datetime.now(pytz.timezone("Asia/Beirut")).strftime("%Y-%m-%d %H:%M:%S")
-    return render_template("index.html", customers=customers, now=now)
+    return render_template("index.html", customers=customers)
 
 @app.route("/add_customer", methods=["POST"])
 def add_customer():
-    try:
-        data = request.get_json()
-        if not data:
-            return jsonify(success=False, message="No JSON data provided.")
-        name = data.get("name")
-        phone = data.get("phone")
-        app_name = data.get("app_name")
-        if not all([name, phone, app_name]):
-            return jsonify(success=False, message="All fields are required.")
-        
-        customers = load_customers()
-        if any(c["phone"] == phone for c in customers):
-            return jsonify(success=False, message="Customer with this phone already exists.")
-        
-        new_customer = {
-            "name": name,
-            "phone": phone,
-            "app_name": app_name,
-            "paid": False,
-            "join_date": datetime.now(pytz.timezone("Asia/Beirut")).strftime("%Y-%m-%d"),
-        }
-        customers.append(new_customer)
-        save_customers(customers)
-        return jsonify(success=True)
-    except Exception as e:
-        return jsonify(success=False, message=str(e))
+    data = request.json
+    name = data.get("name", "").strip()
+    phone = data.get("phone", "").strip()
+    app_name = data.get("app_name", "").strip()
+
+    if not name or not phone or not app_name:
+        return jsonify({"success": False, "message": "Name, phone, and app name are required."})
+
+    customers = load_customers()
+    for cust in customers:
+        if cust["phone"] == phone:
+            return jsonify({"success": False, "message": "Customer with this phone already exists."})
+
+    today = datetime.date.today().isoformat()
+    customers.append({
+        "name": name,
+        "phone": phone,
+        "app_name": app_name,
+        "join_date": today,
+        "paid": False
+    })
+
+    save_customers(customers)
+    return jsonify({"success": True, "message": "Customer added successfully."})
 
 @app.route("/delete_customer", methods=["POST"])
 def delete_customer():
-    try:
-        data = request.get_json()
-        phone = data.get("phone")
-        customers = load_customers()
-        new_list = [c for c in customers if c["phone"] != phone]
-        if len(new_list) == len(customers):
-            return jsonify(success=False, message="Customer not found.")
-        save_customers(new_list)
-        return jsonify(success=True)
-    except Exception as e:
-        return jsonify(success=False, message=str(e))
+    data = request.json
+    phone = data.get("phone", "").strip()
+    if not phone:
+        return jsonify({"success": False, "message": "Phone is required."})
+
+    customers = load_customers()
+    customers = [c for c in customers if c["phone"] != phone]
+    save_customers(customers)
+    return jsonify({"success": True, "message": "Customer deleted successfully."})
 
 @app.route("/mark_paid", methods=["POST"])
 def mark_paid():
-    try:
-        data = request.get_json()
-        phone = data.get("phone")
-        customers = load_customers()
-        found = False
-        for c in customers:
-            if c["phone"] == phone:
-                c["paid"] = True
-                found = True
-                break
-        if not found:
-            return jsonify(success=False, message="Customer not found.")
-        save_customers(customers)
-        return jsonify(success=True)
-    except Exception as e:
-        return jsonify(success=False, message=str(e))
+    data = request.json
+    phone = data.get("phone", "").strip()
+    if not phone:
+        return jsonify({"success": False, "message": "Phone is required."})
 
-def send_daily_reminder():
-    bot = telegram.Bot(token=TELEGRAM_TOKEN)
-    while True:
-        now = datetime.now(pytz.timezone("Asia/Beirut"))
-        if now.hour == 10 and now.minute == 0:
-            customers = load_customers()
-            unpaid = [c for c in customers if not c["paid"]]
-            if unpaid:
-                message = "📋 المشتركين الذين لم يدفعوا:\n\n"
-                for c in unpaid:
-                    message += f"👤 الاسم: {c['name']}\n📞 الرقم: {c['phone']}\n📱 التطبيق: {c['app_name']}\n📅 الانضمام: {c['join_date']}\n\n"
-                try:
-                    bot.send_message(chat_id=OWNER_CHAT_ID, text=message)
-                except Exception as e:
-                    print("Error sending Telegram message:", e)
-        time.sleep(60)
+    customers = load_customers()
+    for cust in customers:
+        if cust["phone"] == phone:
+            cust["paid"] = True
+            save_customers(customers)
+            return jsonify({"success": True, "message": f"{cust['name']} marked as paid."})
 
-threading.Thread(target=send_daily_reminder, daemon=True).start()
+    return jsonify({"success": False, "message": "Customer not found."})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=10000)
