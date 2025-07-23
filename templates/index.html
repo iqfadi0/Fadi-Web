@@ -1,102 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Customer Management</title>
-<style>
-  body {
-    background-color: #121212;
-    color: #eee;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    margin: 0;
-    padding: 20px;
-  }
-  h1 {
-    color: #00d8ff;
-    text-align: center;
-  }
-  .container {
-    max-width: 700px;
-    margin: auto;
-    background: #1e1e1e;
-    padding: 20px;
-    border-radius: 12px;
-    box-shadow: 0 0 15px #00d8ff44;
-  }
-  label, input {
-    display: block;
-    margin-bottom: 10px;
-  }
-  input[type="text"], input[type="tel"] {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    font-size: 1rem;
-  }
-  button {
-    background-color: #00aaff;
-    border: none;
-    padding: 12px 20px;
-    color: #121212;
-    font-weight: 600;
-    font-size: 1rem;
-    border-radius: 8px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  button:hover {
-    background-color: #008fcc;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 25px;
-  }
-  th, td {
-    border: 1px solid #00d8ff;
-    padding: 10px;
-    text-align: center;
-  }
-  th {
-    background-color: #00d8ff;
-    color: #121212;
-  }
-  .paid {
-    color: #4caf50;
-    font-weight: bold;
-  }
-  .not-paid {
-    color: #f44336;
-    font-weight: bold;
-  }
-  .btn-pay {
-    background-color: #4caf50;
-    color: white;
-    border: none;
-    padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-  .btn-pay:hover {
-    background-color: #388e3c;
-  }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Customer Management</title>
+  <style>
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #121212;
+      color: #eee;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    header {
+      font-size: 2rem;
+      color: #00d8ff;
+      text-shadow: 0 0 8px #00d8ff99;
+      margin-bottom: 20px;
+    }
+
+    main {
+      background-color: #1e1e1e;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 700px;
+      box-shadow: 0 0 20px #00d8ff44;
+      padding: 20px 25px;
+    }
+
+    h2 {
+      color: #00d8ff;
+      margin-bottom: 15px;
+      font-weight: 600;
+      border-bottom: 2px solid #00d8ff;
+      padding-bottom: 8px;
+      text-align: center;
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 25px;
+      justify-content: center;
+    }
+
+    input[type="text"], input[type="tel"] {
+      padding: 10px;
+      border-radius: 8px;
+      border: none;
+      width: 220px;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #00aaff;
+      color: #121212;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+      min-width: 130px;
+    }
+
+    button:hover {
+      background-color: #008fcc;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #333;
+      text-align: center;
+    }
+
+    th {
+      background-color: #00aaff;
+      color: #121212;
+      border-radius: 6px 6px 0 0;
+      user-select: none;
+    }
+
+    td button {
+      background-color: #008000aa;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+      transition: background-color 0.3s ease;
+    }
+
+    td button:hover {
+      background-color: #005500cc;
+    }
+
+    td button.delete-btn {
+      background-color: #cc0000aa;
+    }
+
+    td button.delete-btn:hover {
+      background-color: #880000cc;
+    }
+
+    .message {
+      text-align: center;
+      margin-bottom: 15px;
+      font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      input[type="text"], input[type="tel"] {
+        width: 100%;
+      }
+
+      form {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+  </style>
 </head>
 <body>
-  <h1>Customer Management</h1>
-  <div class="container">
-    <h2>Add New Customer</h2>
-    <label for="name">Name:</label>
-    <input type="text" id="name" placeholder="Enter customer name" />
-    <label for="phone">Phone:</label>
-    <input type="tel" id="phone" placeholder="Enter phone number" />
-    <button onclick="addCustomer()">Add Customer</button>
+  <header>Customer Management System</header>
+  <main>
+    <h2>Manage Customers</h2>
+    <form id="addCustomerForm">
+      <input type="text" id="name" placeholder="Name" required />
+      <input type="tel" id="phone" placeholder="Phone Number" required pattern="[0-9+\- ]+" />
+      <button type="submit">Add Customer</button>
+    </form>
 
-    <h2>Customers List</h2>
-    <table id="customers-table">
+    <div class="message" id="message"></div>
+
+    <table id="customersTable" aria-label="Customers List">
       <thead>
         <tr>
           <th>Name</th>
@@ -106,98 +164,107 @@
           <th>Actions</th>
         </tr>
       </thead>
-      <tbody id="customers-body">
+      <tbody>
+        <!-- Rows will be injected here -->
       </tbody>
     </table>
-  </div>
+  </main>
 
-<script>
-  async function fetchCustomers() {
-    const res = await fetch('/customers');
-    const data = await res.json();
-    const tbody = document.getElementById('customers-body');
-    tbody.innerHTML = '';
+  <script>
+    async function fetchCustomers() {
+      const res = await fetch('/api/customers');
+      const customers = await res.json();
+      const tbody = document.querySelector('#customersTable tbody');
+      tbody.innerHTML = '';
 
-    for (const name in data) {
-      const customer = data[name];
-      const tr = document.createElement('tr');
+      if (customers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5">No customers found.</td></tr>`;
+        return;
+      }
 
-      tr.innerHTML = `
-        <td>${name}</td>
-        <td>${customer.phone}</td>
-        <td>${customer.join_date}</td>
-        <td class="${customer.paid ? 'paid' : 'not-paid'}">${customer.paid ? '✅ Paid' : '❌ Not Paid'}</td>
-        <td>
-          ${customer.paid ? '' : `<button class="btn-pay" onclick="confirmPayment('${name}')">Confirm Payment</button>`}
-          <button onclick="deleteCustomer('${name}')">Delete</button>
-        </td>
-      `;
-      tbody.appendChild(tr);
+      customers.forEach(customer => {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td>${customer.name}</td>
+          <td>${customer.phone}</td>
+          <td>${customer.join_date}</td>
+          <td>${customer.paid ? '✅' : '❌'}</td>
+          <td>
+            ${customer.paid ? '' : `<button class="paid-btn" data-name="${customer.name}">Mark Paid</button>`}
+            <button class="delete-btn" data-name="${customer.name}">Delete</button>
+          </td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+
+      document.querySelectorAll('.paid-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const name = btn.dataset.name;
+          const res = await fetch(`/api/customers/${encodeURIComponent(name)}/paid`, { method: 'POST' });
+          if (res.ok) {
+            showMessage(`Payment confirmed for ${name}`);
+            fetchCustomers();
+          } else {
+            const data = await res.json();
+            showMessage(data.error || 'Error marking paid');
+          }
+        };
+      });
+
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.onclick = async () => {
+          const name = btn.dataset.name;
+          if (!confirm(`Are you sure you want to delete ${name}?`)) return;
+          const res = await fetch(`/api/customers/${encodeURIComponent(name)}/delete`, { method: 'POST' });
+          if (res.ok) {
+            showMessage(`Deleted ${name}`);
+            fetchCustomers();
+          } else {
+            const data = await res.json();
+            showMessage(data.error || 'Error deleting customer');
+          }
+        };
+      });
     }
-  }
 
-  async function addCustomer() {
-    const name = document.getElementById('name').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-
-    if (!name || !phone) {
-      alert('Please enter both name and phone');
-      return;
+    function showMessage(text) {
+      const messageEl = document.getElementById('message');
+      messageEl.textContent = text;
+      setTimeout(() => {
+        messageEl.textContent = '';
+      }, 4000);
     }
 
-    const res = await fetch('/add_customer', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name, phone})
+    document.getElementById('addCustomerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      if (!name || !phone) {
+        showMessage('Please fill in both fields.');
+        return;
+      }
+
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({name, phone})
+      });
+
+      if (res.ok) {
+        showMessage('Customer added successfully!');
+        document.getElementById('addCustomerForm').reset();
+        fetchCustomers();
+      } else {
+        const data = await res.json();
+        showMessage(data.error || 'Failed to add customer.');
+      }
     });
-    const data = await res.json();
 
-    if (res.ok) {
-      alert(data.message);
-      document.getElementById('name').value = '';
-      document.getElementById('phone').value = '';
-      fetchCustomers();
-    } else {
-      alert(data.error);
-    }
-  }
-
-  async function deleteCustomer(name) {
-    if (!confirm(`Are you sure you want to delete customer: ${name}?`)) return;
-
-    const res = await fetch('/delete_customer', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name})
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      alert(data.message);
-      fetchCustomers();
-    } else {
-      alert(data.error);
-    }
-  }
-
-  async function confirmPayment(name) {
-    const res = await fetch('/confirm_payment', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({name})
-    });
-    const data = await res.json();
-
-    if (res.ok) {
-      alert(data.message);
-      fetchCustomers();
-    } else {
-      alert(data.error);
-    }
-  }
-
-  // Load customers list on page load
-  window.onload = fetchCustomers;
-</script>
+    // Load customers on page load
+    fetchCustomers();
+  </script>
 </body>
 </html>
