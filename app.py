@@ -6,10 +6,9 @@ import datetime
 
 app = Flask(__name__)
 
-# قراءة اسم المستخدم وكلمة السر من متغيرات البيئة، أو قيم افتراضية
 app.config['BASIC_AUTH_USERNAME'] = os.getenv('BASIC_AUTH_USERNAME', 'admin')
 app.config['BASIC_AUTH_PASSWORD'] = os.getenv('BASIC_AUTH_PASSWORD', 'password')
-app.config['BASIC_AUTH_FORCE'] = True  # يجبر Basic Auth لكل الصفحات
+app.config['BASIC_AUTH_FORCE'] = True
 
 basic_auth = BasicAuth(app)
 
@@ -41,7 +40,6 @@ def add_customer():
         return jsonify({"success": False, "message": "Name, phone, and app name are required."})
 
     customers = load_customers()
-
     for cust in customers:
         if cust["phone"] == phone:
             return jsonify({"success": False, "message": "Customer with this phone already exists."})
